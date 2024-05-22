@@ -46,13 +46,48 @@
       <el-tag
         v-for="tag in presentTags"
         :key="tag.key"
-        type="info"
+        :type="tagType"
         :size="tagSize"
         :hit="tag.hitState"
         :closable="tag.closable"
         disable-transitions
         @close="deleteTag(tag)">
-        <span>{{ tag.text }}</span>
+        <template v-if="tag.isCollapseTag === false">
+          <span>{{ tag.text }}</span>
+        </template>
+        <template v-else>
+          <el-tooltip
+              :disabled="!collapseTagsTooltip"
+              :fallback-placements="['bottom', 'top', 'right', 'left']"
+              placement="bottom"
+              effect="light"
+          >
+            <template>
+              <span>{{ tag.text }}</span>
+            </template>
+            <div class="el-collapse-tags" :style="collapseTagsStyle" slot="content">
+              <div
+                  v-for="(tag2, idx) in allPresentTags.slice(1)"
+                  :key="idx"
+                  class="el-collapse-tag"
+                  :style="collapseTagStyle"
+              >
+                <el-tag
+                    :key="tag2.key"
+                    class="in-tooltip"
+                    :type="tagType"
+                    :size="tagSize"
+                    :hit="tag2.hitState"
+                    :closable="tag2.closable"
+                    disable-transitions
+                    @close="deleteTag(tag2)"
+                >
+                  <span>{{ tag2.text }}</span>
+                </el-tag>
+              </div>
+            </div>
+          </el-tooltip>
+        </template>
       </el-tag>
       <input
         v-if="filterable && !isDisabled"
@@ -226,7 +261,31 @@ export default {
       type: Function,
       default: () => (() => {})
     },
-    popperClass: String
+    popperClass: String,
+    tagType: {
+      type: String,
+      default: 'info'
+    },
+    collapseTagsTooltip: Boolean,
+    collapseTagsStyle: {
+      type: Object,
+      default: () => {
+        return {
+          maxHeight: '80vh',
+          overflowY: 'auto'
+        };
+      }
+    },
+    collapseTagStyle: {
+      type: Object,
+      default: () => {
+        return {
+          margin: '0 6px 6px 0',
+          // display: 'inline-flex',
+          'align-items': 'center'
+        };
+      }
+    }
   },
 
   data() {
@@ -241,7 +300,8 @@ export default {
       filtering: false,
       suggestions: [],
       inputInitialHeight: 0,
-      pressDeleteCount: 0
+      pressDeleteCount: 0,
+      allPresentTags: []
     };
   },
 
@@ -342,6 +402,12 @@ export default {
     },
     filtering(val) {
       this.$nextTick(this.updatePopper);
+    },
+    isDisabled() {
+      this.calculatePresentTags();
+    },
+    checkedNodes() {
+      this.calculatePresentTags();
     }
   },
 
@@ -381,6 +447,49 @@ export default {
   },
 
   methods: {
+    calculatePresentTags() {
+      const genTag = (node) => {
+        const { showAllLevels, separator } = this;
+        return {
+          node,
+          key: node.uid,
+          text: node.getText(showAllLevels, separator),
+          hitState: false,
+          closable: !this.isDisabled && !node.isDisabled,
+          isCollapseTag: false
+        };
+      };
+      if (!this.multiple) return;
+
+      const nodes = this.checkedNodes;
+      const tags = [];
+
+      const allTags = [];
+      nodes.forEach((node) => allTags.push(genTag(node)));
+      this.allPresentTags = allTags;
+
+      if (nodes.length) {
+        const [first, ...rest] = nodes;
+        const restCount = rest.length;
+
+        tags.push(genTag(first));
+
+        if (restCount) {
+          if (this.collapseTags) {
+            tags.push({
+              key: -1,
+              text: `+ ${restCount}`,
+              closable: false,
+              isCollapseTag: true
+            });
+          } else {
+            rest.forEach((node) => tags.push(genTag(node)));
+          }
+        }
+      }
+
+      this.presentTags = tags;
+    },
     getMigratingConfig() {
       return {
         props: {
