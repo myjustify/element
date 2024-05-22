@@ -201,6 +201,7 @@
     v-model="value2"
     multiple
     collapse-tags
+    collapseTagsTooltip
     style="margin-left: 20px;"
     placeholder="请选择">
     <el-option

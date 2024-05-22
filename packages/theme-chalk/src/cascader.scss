@@ -5,6 +5,37 @@
 @import "./tag";
 @import "./cascader-panel";
 
+@mixin cascader-tag-normal($background-color) {
+  .#{$namespace}-tag {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    margin: 2px 0 2px 6px;
+    text-overflow: ellipsis;
+    background: $background-color;
+
+    &:not(.is-hit) {
+      border-color: transparent;
+    }
+
+    > span {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .#{$namespace}-icon-close {
+      flex: none;
+      background-color: $--color-text-placeholder;
+      color: $--color-white;
+
+      &:hover {
+        background-color: $--color-text-secondary;
+      }
+    }
+  }
+}
+
 @include b(cascader) {
   display: inline-block;
   position: relative;
@@ -120,6 +151,12 @@
         }
       }
     }
+  }
+
+  @include e(collapse-tags) {
+    white-space: normal;
+    z-index: $--index-normal;
+    @include cascader-tag-normal($--fill-base);
   }
 
   @include e(suggestion-panel) {

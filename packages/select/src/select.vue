@@ -14,7 +14,7 @@
           :closable="!selectDisabled"
           :size="collapseTagSize"
           :hit="selected[0].hitState"
-          type="info"
+          :type="tagType"
           @close="deleteTag($event, selected[0])"
           disable-transitions>
           <span class="el-select__tags-text">{{ selected[0].currentLabel }}</span>
@@ -23,9 +23,45 @@
           v-if="selected.length > 1"
           :closable="false"
           :size="collapseTagSize"
-          type="info"
+          :type="tagType"
           disable-transitions>
-          <span class="el-select__tags-text">+ {{ selected.length - 1 }}</span>
+          <el-tooltip
+              v-if="collapseTagsTooltip"
+              ref="tagTooltipRef"
+              :disabled="!collapseTagsTooltip"
+              :fallback-placements="['bottom', 'top', 'right', 'left']"
+              effect="light"
+              placement="bottom"
+          >
+            <span class="el-select__tags-text">+ {{ selected.length - 1 }}</span>
+            <div slot="content" class="el-select__collapse-tags" :style="[{ display: 'block',maxHeight: '80vh', overflowY: 'auto'}, collapseTagsStyle]">
+              <div
+                  v-for="item in collapseTagList"
+                  :key="getValueKey(item)"
+                  class="el-select__collapse-tag"
+                  :style="collapseTagStyle"
+              >
+                <el-tag
+                    class="in-tooltip"
+                    :closable="!selectDisabled && !item.isDisabled"
+                    :size="collapseTagSize"
+                    :hit="item.hitState"
+                    type="info"
+                    disable-transitions
+                    :style="{ margin: '2px' }"
+                    @close="handleDeleteTooltipTag($event, item)"
+                >
+                  <span
+                      class="el-select__tags-text"
+                      :style="{
+                      maxWidth: inputWidth - 75 + 'px',
+                    }"
+                  >{{ item.currentLabel }}</span>
+                </el-tag>
+              </div>
+            </div>
+          </el-tooltip>
+          <span v-else class="el-select__tags-text">+ {{ selected.length - 1 }}</span>
         </el-tag>
       </span>
       <transition-group @after-leave="resetInputHeight" v-if="!collapseTags">
@@ -239,6 +275,9 @@
       },
       propPlaceholder() {
         return typeof this.placeholder !== 'undefined' ? this.placeholder : this.t('el.select.placeholder');
+      },
+      collapseTagList() {
+        return this.multiple ? this.selected.slice(1) : [];
       }
     },
 
@@ -300,7 +339,24 @@
         type: String,
         default: 'value'
       },
+      tagType: {
+        type: String,
+        default: 'info'
+      },
       collapseTags: Boolean,
+      collapseTagsTooltip: Boolean,
+      collapseTagsStyle: {
+        type: Object,
+        default() {
+          return {};
+        }
+      },
+      collapseTagStyle: {
+        type: Object,
+        default() {
+          return {};
+        }
+      },
       popperAppendToBody: {
         type: Boolean,
         default: true
@@ -443,6 +499,10 @@
     },
 
     methods: {
+      handleDeleteTooltipTag(event, tag) {
+        this.deleteTag(event, tag);
+        this.$refs.tagTooltipRef && this.$refs.tagTooltipRef.updatePopper && this.$refs.tagTooltipRef.updatePopper();
+      },
       handleNavigate(direction) {
         if (this.isOnComposition) return;
 

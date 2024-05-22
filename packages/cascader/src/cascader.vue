@@ -57,6 +57,7 @@
         </template>
         <template v-else>
           <el-tooltip
+              ref="tagTooltipRef"
               :disabled="!collapseTagsTooltip"
               :fallback-placements="['bottom', 'top', 'right', 'left']"
               placement="bottom"
@@ -65,11 +66,11 @@
             <template>
               <span>{{ tag.text }}</span>
             </template>
-            <div class="el-collapse-tags" :style="collapseTagsStyle" slot="content">
+            <div class="el-cascader__collapse-tags" :style="[{ display: 'block',maxHeight: '80vh', overflowY: 'auto' }, collapseTagsStyle]" slot="content">
               <div
                   v-for="(tag2, idx) in allPresentTags.slice(1)"
                   :key="idx"
-                  class="el-collapse-tag"
+                  class="el-cascader__collapse-tag"
                   :style="collapseTagStyle"
               >
                 <el-tag
@@ -279,11 +280,7 @@ export default {
     collapseTagStyle: {
       type: Object,
       default: () => {
-        return {
-          margin: '0 6px 6px 0',
-          // display: 'inline-flex',
-          'align-items': 'center'
-        };
+        return {};
       }
     }
   },

@@ -896,7 +896,6 @@
   <span class="demonstration">折叠展示Tag</span>
   <el-cascader 
       :value="[[1,2,3], [1,2,4],[1,2,5],[1,7,8],[1,7,9],[1,7,10]]"
-      disabled
     :options="options"
     :props="props"
     collapse-tags

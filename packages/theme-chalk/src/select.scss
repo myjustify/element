@@ -8,6 +8,40 @@
 @import "option-group";
 @import "scrollbar";
 
+@mixin select-tag-normal {
+  white-space: normal;
+  z-index: $--index-normal;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  cursor: pointer;
+
+  .#{$namespace}-tag {
+    box-sizing: border-box;
+    border-color: transparent;
+    margin: 2px 6px 2px 0;
+    &:last-child {
+      margin-right: 0;
+    }
+
+    .#{$namespace}-icon-close {
+      background-color: $--color-text-placeholder;
+      right: -7px;
+      top: 0;
+      color: $--color-white;
+
+      &:hover {
+        background-color: $--color-text-secondary;
+      }
+
+      &::before {
+        display: block;
+        transform: translate(0, 0.5px);
+      }
+    }
+  }
+}
+
 @include b(select) {
   display: inline-block;
   position: relative;
@@ -122,6 +156,16 @@
   @include e(tags-text) {
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  @include e(collapse-tags) {
+    @include select-tag-normal;
+  }
+
+  @include e(collapse-tag) {
+    line-height: inherit;
+    height: inherit;
+    display: flex;
   }
 
   .el-tag {
