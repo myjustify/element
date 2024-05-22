@@ -729,6 +729,7 @@ export default {
       const val = checkedValue.find(n => isEqual(n, current));
       this.checkedValue = checkedValue.filter(n => !isEqual(n, current));
       this.$emit('remove-tag', val);
+      this.$refs.tagTooltipRef && this.$refs.tagTooltipRef.updatePopper && this.$refs.tagTooltipRef.updatePopper();
     },
     updateStyle() {
       const { $el, inputInitialHeight } = this;

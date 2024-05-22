@@ -156,7 +156,7 @@
   @include e(collapse-tags) {
     white-space: normal;
     z-index: $--index-normal;
-    @include cascader-tag-normal($--fill-base);
+    @include cascader-tag-normal($--color-info-lighter);
   }
 
   @include e(suggestion-panel) {
