@@ -71,7 +71,7 @@
                   v-for="(tag2, idx) in allPresentTags.slice(1)"
                   :key="idx"
                   class="el-cascader__collapse-tag"
-                  :style="collapseTagStyle"
+                  :style="[{ margin: '0 6px 6px 0' }, collapseTagStyle]"
               >
                 <el-tag
                     :key="tag2.key"
